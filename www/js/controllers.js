@@ -63,11 +63,16 @@ angular.module('stocks.controllers', [])
   //     console.log(jsonData.data.list.resources[0].resource.fields);
   //   });
   $scope.ticker = $stateParams.stockTicker;
+  $scope.chartView = 1;
 
   $scope.$on("$ionicView.afterEnter", function() {
     getPriceData();
     getDetailsData();
   });
+
+  $scope.chartViewFunc = function (n) {
+    $scope.chartView = n;
+  };
 
   // implement this function after everything is loaded in the above
   // ionic view after enter event
@@ -76,6 +81,7 @@ angular.module('stocks.controllers', [])
 
     promise.then(function (data) {
       console.log(data);
+      $scope.stockPriceData = data;
     });
   }
 
@@ -84,6 +90,7 @@ angular.module('stocks.controllers', [])
 
     promise.then(function (data) {
       console.log(data);
+      $scope.stockDetailsData = data;
     });
   }
 
