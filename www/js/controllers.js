@@ -41,16 +41,20 @@ angular.module('stocks.controllers', [])
   };
 })
 
-.controller('MyStocksCtrl', function ($scope) {
-  $scope.playlists = [
-    { title: 'Reggae', id: 1 },
-    { title: 'Chill', id: 2 },
-    { title: 'Dubstep', id: 3 },
-    { title: 'Indie', id: 4 },
-    { title: 'Rap', id: 5 },
-    { title: 'Cowbell', id: 6 }
+.controller('MyStocksCtrl', ['$scope', function ($scope) {
+  $scope.myStocksArray = [
+    {ticker: "GPRO"},
+    {ticker: "FB"},
+    {ticker: "TSLA"},
+    {ticker: "NFLX"},
+    {ticker: "LNKD"},
+    {ticker: "GOOG"},
+    {ticker: "ATVI"},
+    {ticker: "GLUU"},
+    {ticker: "ZNGA"}
   ];
-})
+}])
 
-.controller('StockCtrl', function ($scope, $stateParams) {
-});
+.controller('StockCtrl', ['$scope', '$stateParams', function ($scope, $stateParams) {
+  $scope.ticker = $stateParams.stockTicker;
+}]);
