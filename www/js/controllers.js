@@ -55,6 +55,18 @@ angular.module('stocks.controllers', [])
   ];
 }])
 
-.controller('StockCtrl', ['$scope', '$stateParams', function ($scope, $stateParams) {
+.controller('StockCtrl', ['$scope', '$stateParams', '$http', 'StockDataService', function ($scope, $stateParams, $http, StockDataService) {
+  // http://finance.yahoo.com/webservice/v1/symbols/YHOO/quote?format=json&view=detail
+  // request data from api
+  // $http.get("http://finance.yahoo.com/webservice/v1/symbols/YHOO/quote?format=json&view=detail")
+  //   .then(function (jsonData) {
+  //     console.log(jsonData.data.list.resources[0].resource.fields);
+  //   });
   $scope.ticker = $stateParams.stockTicker;
+
+  var promise = StockDataService.getPriceData($scope.ticker);
+
+  promise.then(function (data) {
+    console.log(data);
+  });
 }]);
