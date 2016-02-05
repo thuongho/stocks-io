@@ -1,9 +1,40 @@
 angular.module('stocks.services', [])
 
-.factory('StockDataService', ['$q', '$http', function ($q, $http) {
+.factory('EncodeURIService', function () {
+  // remove all %20 and add them back
+  return {
+    encode: function(string) {
+      return encodeURIComponent(string).replace(/\"/g, "%22").replace(/\ /g, "%20").replace(/[!'()]/g, escape);
+    }
+  };
+})
+
+.factory('DateService', ['$filter', function ($filter) {
+
+  var currentDate = function() {
+    var d = new Date();
+    var date = $filter('date')(d, 'yyyy-MM-dd');
+    return date;
+  };
+  var oneYearAgoDate = function() {
+    // minus 365 to get one year ago
+    var d = new Date(new Date().setDate(new Date().getDate() - 365));
+    var date = $filter('date')(d, 'yyyy-MM-dd');
+    return date;
+  };
+  return {
+    currentDate: currentDate,
+    oneYearAgoDate: oneYearAgoDate
+  };
+}])
+
+.factory('StockDataService', ['$q', '$http', 'EncodeURIService', function ($q, $http, EncodeURIService) {
   var getDetailsData = function(ticker) {
     var deferred = $q.defer(),
-        url = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20IN%20(%22" + ticker + "%22)&format=json&env=http://datatables.org/alltables.env";
+        query = 'select * from yahoo.finance.quotes where symbol IN ("' + ticker + '")',
+        url = 'http://query.yahooapis.com/v1/public/yql?q=' + EncodeURIService.encode(query) + '&format=json&env=http://datatables.org/alltables.env';
+
+        console.log(url);
     $http.get(url)
       .success(function (json) {
         var jsonData = json.query.results.quote; 
