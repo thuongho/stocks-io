@@ -55,7 +55,7 @@ angular.module('stocks.controllers', [])
   ];
 }])
 
-.controller('StockCtrl', ['$scope', '$stateParams', '$http', 'StockDataService', function ($scope, $stateParams, $http, StockDataService) {
+.controller('StockCtrl', ['$scope', '$stateParams', 'StockDataService', function ($scope, $stateParams, StockDataService) {
   // http://finance.yahoo.com/webservice/v1/symbols/YHOO/quote?format=json&view=detail
   // request data from api
   // $http.get("http://finance.yahoo.com/webservice/v1/symbols/YHOO/quote?format=json&view=detail")
@@ -64,9 +64,28 @@ angular.module('stocks.controllers', [])
   //   });
   $scope.ticker = $stateParams.stockTicker;
 
-  var promise = StockDataService.getPriceData($scope.ticker);
-
-  promise.then(function (data) {
-    console.log(data);
+  $scope.$on("$ionicView.afterEnter", function() {
+    getPriceData();
+    getDetailsData();
   });
+
+  // implement this function after everything is loaded in the above
+  // ionic view after enter event
+  function getPriceData() {
+    var promise = StockDataService.getPriceData($scope.ticker);
+
+    promise.then(function (data) {
+      console.log(data);
+    });
+  }
+
+  function getDetailsData() {
+    var promise = StockDataService.getDetailsData($scope.ticker);
+
+    promise.then(function (data) {
+      console.log(data);
+    });
+  }
+
+  
 }]);
