@@ -41,7 +41,8 @@ angular.module('stocks.services', [])
         deferred.resolve(jsonData);
       })
       .error(function (error) {
-        console.log("Details data error: " + error);
+        // console.log("Details data error: " + error);
+        console.log("Details data error: " + JSON.stringify(error));
         deferred.reject();
       });
 
@@ -73,5 +74,65 @@ angular.module('stocks.services', [])
   return {
     getPriceData: getPriceData,
     getDetailsData: getDetailsData
+  }; 
+}])
+
+.factory('ChartDataService', ['$q', '$http', 'EncodeURIService', function ($q, $http, EncodeURIService) {
+  var getHistoricalData = function(ticker, fromDate, todayDate) {
+    var deferred = $q.defer(),
+        query =  'select * from yahoo.finance.historicaldata where symbol = "' + ticker + '" and startDate = "' + fromDate + '" and endDate = "' + todayDate + '"',
+        url = 'http://query.yahooapis.com/v1/public/yql?q=' + EncodeURIService.encode(query) + '&format=json&env=http://datatables.org/alltables.env';
+
+    $http.get(url)
+      .success(function (json) {
+        // console.log(json);
+        var jsonData = json.query.results.quote;
+
+        var priceData = [],
+            volumeData = [];
+
+        jsonData.forEach(function (dayDataObject) {
+          var dateToMilliSec = dayDataObject.Date,
+              date = Date.parse(dateToMilliSec),
+              price = parseFloat(Math.round(dayDataObject.Close * 100) / 100).toFixed(3),
+              volume = dayDataObject.Volume,
+
+          // format data
+              volumeDatum = '[' + date + ',' + volume + ']',
+              priceDatum = '[' + date +  ',' + price + ']';
+              // console.log(volumeDatum);
+              // console.log(priceDatum);
+
+          // unshift into the arrays
+          volumeData.unshift(volumeDatum);
+          priceData.unshift(priceDatum);
+
+        });
+
+        // replicate the formatting in StockCtrl myData
+        var formattedChartData = 
+          '[{' + 
+            '"key": ' + '"volume",' +
+            '"bar": ' + 'true,' + 
+            '"values": ' + '[' + volumeData + ']' + 
+          '},' +
+          '{' +
+            '"key": ' + '"' + ticker + '",' +
+            '"values": ' + '[' + priceData + ']' +
+          '}]';
+
+          // console.log(formattedChartData);
+        deferred.resolve(formattedChartData);
+      })
+      .error(function(error) {
+        // console.log("Chart data error: " + error);
+        console.log("Chart data error: " + JSON.stringify(error));
+        deferred.reject();
+      });
+    return deferred.promise;
+  };
+
+  return {
+    getHistoricalData: getHistoricalData
   };
 }]);
