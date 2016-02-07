@@ -55,7 +55,7 @@ angular.module('stocks.controllers', [])
   ];
 }])
 
-.controller('StockCtrl', ['$scope', '$stateParams', '$window', 'StockDataService', 'DateService', 'ChartDataService', function ($scope, $stateParams, $window, StockDataService, DateService, ChartDataService) {
+.controller('StockCtrl', ['$scope', '$stateParams', '$window', '$ionicPopup', 'StockDataService', 'DateService', 'ChartDataService', function ($scope, $stateParams, $window, $ionicPopup, StockDataService, DateService, ChartDataService) {
   // console.log(DateService.currentDate());
   // console.log(DateService.oneYearAgoDate());
   
@@ -74,6 +74,35 @@ angular.module('stocks.controllers', [])
   $scope.chartViewFunc = function (n) {
     $scope.chartView = n;
   };
+
+  $scope.addNote = function() {
+    $scope.note = {title: 'Note', body: '', date: $scope.todayDate, ticker: $scope.ticker};
+
+    var note = $ionicPopup.show({
+      template: '<input type="text" ng-model="note.title" id="stock-note-title"><textarea type="text" ng-model="note.body" id="stock-note-body"></textarea>',
+      title: 'New Note for ' + $scope.ticker,
+      scope: $scope,
+      buttons: [
+        { 
+          text: 'Cancel',
+          onTap: function(e) {
+            return;
+          } 
+        },
+        {
+          text: '<b>Save</b>',
+          type: 'button-balanced',
+          onTap: function(e) {
+            console.log("save: ", $scope.note);
+          }
+        }
+      ]
+    });
+
+    note.then(function(res) {
+      console.log('Tapped!', res);
+    });
+   };
 
   // implement this function after everything is loaded in the above
   // ionic view after enter event
