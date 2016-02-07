@@ -1,5 +1,6 @@
 angular.module('stocks.filters', [])
 
+// filter modified from Tim Jones' megaNumber gist
 .filter("shrinkNumberFilter", function ($filter) {
   return function (number, fractionSize) {
 
