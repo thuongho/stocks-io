@@ -55,7 +55,7 @@ angular.module('stocks.controllers', [])
   ];
 }])
 
-.controller('StockCtrl', ['$scope', '$stateParams', '$window', '$ionicPopup', 'StockDataService', 'DateService', 'ChartDataService', function ($scope, $stateParams, $window, $ionicPopup, StockDataService, DateService, ChartDataService) {
+.controller('StockCtrl', ['$scope', '$stateParams', '$window', '$ionicPopup', 'StockDataService', 'DateService', 'ChartDataService', 'NotesService', function ($scope, $stateParams, $window, $ionicPopup, StockDataService, DateService, ChartDataService, NotesService) {
   // console.log(DateService.currentDate());
   // console.log(DateService.oneYearAgoDate());
   
@@ -65,10 +65,13 @@ angular.module('stocks.controllers', [])
   $scope.oneYearAgoDate = DateService.oneYearAgoDate();
   $scope.todayDate = DateService.currentDate();
 
+  $scope.stockNotes = [];
+
   $scope.$on("$ionicView.afterEnter", function() {
     getPriceData();
     getDetailsData();
     getChartData();
+    $scope.stockNotes = NotesService.getNotes($scope.ticker);
   });
 
   $scope.chartViewFunc = function (n) {
@@ -93,6 +96,7 @@ angular.module('stocks.controllers', [])
           text: '<b>Save</b>',
           type: 'button-balanced',
           onTap: function(e) {
+            NotesService.addNotes($scope.ticker, $scope.note);
             console.log("save: ", $scope.note);
           }
         }
@@ -100,9 +104,52 @@ angular.module('stocks.controllers', [])
     });
 
     note.then(function(res) {
+      $scope.stockNotes = NotesService.getNotes($scope.ticker);
       console.log('Tapped!', res);
     });
-   };
+  };
+
+  $scope.openNote = function(index, title, body) {
+    $scope.note = {title: title, body: body, date: $scope.todayDate, ticker: $scope.ticker};
+
+    var note = $ionicPopup.show({
+      template: '<input type="text" ng-model="note.title" id="stock-note-title"><textarea type="text" ng-model="note.body" id="stock-note-body"></textarea>',
+      title: $scope.note.title,
+      scope: $scope,
+      buttons: [
+        {
+          text: 'Delete',
+          type: 'button-assertive button-small',
+          onTap: function(e) {
+            NotesService.deleteNotes($scope.ticker, index);
+          }
+        },
+        { 
+          text: 'Cancel',
+          type: 'button-small',
+          onTap: function(e) {
+            return;
+          } 
+        },
+        {
+          text: '<b>Save</b>',
+          type: 'button-small button-balanced',
+          onTap: function(e) {
+            // delete the original note
+            NotesService.deleteNotes($scope.ticker, $scope.note);
+            // add it back as new note
+            NotesService.addNotes($scope.ticker, $scope.note);
+            console.log("save: ", $scope.note);
+          }
+        }
+      ]
+    });
+
+    note.then(function(res) {
+      $scope.stockNotes = NotesService.getNotes($scope.ticker);
+      console.log('Tapped!', res);
+    });
+  };
 
   // implement this function after everything is loaded in the above
   // ionic view after enter event

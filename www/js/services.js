@@ -62,6 +62,19 @@ angular.module('stocks.services', [])
   return stockDetailsCache;
 }])
 
+.factory('NotesCacheService', ['CacheFactory', function (CacheFactory) {
+  var notesCache;
+
+  if (!CacheFactory.get('notesCache')) {
+    notesCache = CacheFactory('notesCache', {
+      storageMode: 'localStorage'
+    });
+  } else {
+    notesCache = CacheFactory.get('notesCache');
+  }
+  return notesCache;
+}])
+
 .factory('StockDataService', ['$q', '$http', 'EncodeURIService', 'StockDetailsCacheService', function ($q, $http, EncodeURIService, StockDetailsCacheService) {
   var getDetailsData = function(ticker) {
     var deferred = $q.defer(),
@@ -189,5 +202,37 @@ angular.module('stocks.services', [])
 
   return {
     getHistoricalData: getHistoricalData
+  };
+}])
+
+.factory('NotesService', ['NotesCacheService', function (NotesCacheService) {
+  
+  return {
+    getNotes: function(ticker) {
+      return NotesCacheService.get(ticker);
+    },
+    addNotes: function(ticker, note) {
+      var stockNotes = [];
+      // if NotesCacheService and get a cache for current stock
+      if (NotesCacheService.get(ticker)) {
+        // set stockNotes array equal to value of cache
+        stockNotes = NotesCacheService.get(ticker);
+        // add the new note by pushing it into the array
+        stockNotes.push(note);
+      } else {
+        stockNotes.push(note);
+      }
+      NotesCacheService.put(ticker, stockNotes);
+    },
+    deleteNotes: function(ticker, index) {
+      var stockNotes = [];
+      // if there is a note open, we know there is an existing cache
+      // call to the NotesCacheService to get the related cache
+      stockNotes = NotesCacheService.get(ticker);
+      // splice that note out of the stocks array using the index
+      stockNotes.splice(index, 1);
+      // reset the cache and put the updated array back into the cache
+      NotesCacheService.put(ticker, stockNotes);
+    }
   };
 }]);
