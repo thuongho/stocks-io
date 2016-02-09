@@ -123,22 +123,40 @@ angular.module('stocks.services', [])
     FillMyStocksCacheService.fillMyStocksCache();
   }
   var myStocks = MyStocksCacheService.get('myStocks');
-  
+
   return myStocks;
 }])
 
-.factory('FollowStockService', [function () {
+.factory('FollowStockService', ['MyStocksArrayService', 'MyStocksCacheService', function (MyStocksArrayService, MyStocksCacheService) {
   
 
   return {
     follow: function(ticker) {
-
+      var stockToAdd = {"ticker": ticker};
+      MyStocksArrayService.push(stockToAdd);
+      // update the myStocks cache with the MyStocksArrayService with stockToAdd
+      MyStocksCacheService.put('myStocks', MyStocksArrayService);
     },
     unfollow: function(ticker) {
-
+      for (var i = 0; i < MyStocksArrayService.length; i++) {
+        if (MyStocksArrayService[i].ticker === ticker) {
+          // if it matches, splice the object from the array
+          MyStocksArrayService.splice(i, 1);
+          // remove the myStocks cache
+          MyStocksCacheService.remove('myStocks');
+          // update the myStocks Cache with the updated array
+          MyStocksCacheService.put('myStocks', MyStocksArrayService);
+          break;
+        }
+      };
     },
     checkFollowing: function(ticker) {
-
+      for (var i = 0; i < MyStocksArrayService.length - 1; i++) {
+        if (MyStocksArrayService[i].ticker === ticker) {
+          return true;
+        }
+      }
+      return false;
     }
   };
 }])

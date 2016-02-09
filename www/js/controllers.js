@@ -47,15 +47,15 @@ angular.module('stocks.controllers', [])
   $scope.myStocksArray = MyStocksArrayService;
 }])
 
-.controller('StockCtrl', ['$scope', '$stateParams', '$window', '$ionicPopup', 'StockDataService', 'DateService', 'ChartDataService', 'NotesService', 'NewsService', function ($scope, $stateParams, $window, $ionicPopup, StockDataService, DateService, ChartDataService, NotesService, NewsService) {
+.controller('StockCtrl', ['$scope', '$stateParams', '$window', '$ionicPopup', 'StockDataService', 'DateService', 'ChartDataService', 'NotesService', 'NewsService', 'FollowStockService', function ($scope, $stateParams, $window, $ionicPopup, StockDataService, DateService, ChartDataService, NotesService, NewsService, FollowStockService) {
   // console.log(DateService.currentDate());
   // console.log(DateService.oneYearAgoDate());
   
   $scope.ticker = $stateParams.stockTicker;
-  // $scope.chartView = 1;
   $scope.chartView = 4;
   $scope.oneYearAgoDate = DateService.oneYearAgoDate();
   $scope.todayDate = DateService.currentDate();
+  $scope.following = FollowStockService.checkFollowing($scope.ticker);
 
   $scope.stockNotes = [];
 
@@ -66,6 +66,17 @@ angular.module('stocks.controllers', [])
     getNews();
     $scope.stockNotes = NotesService.getNotes($scope.ticker);
   });
+
+  $scope.toggleFollow = function() {
+    // if else to determine if follow or unfollow
+    if ($scope.following) {
+      FollowStockService.unfollow($scope.ticker);
+      $scope.following = false;
+    } else {
+      FollowStockService.follow($scope.ticker);
+      $scope.following = true;
+    }
+  };
 
   $scope.openWindow = function(link) {
     // TODO install and set up inAppBrowser
@@ -159,9 +170,9 @@ angular.module('stocks.controllers', [])
       $scope.stockPriceData = data;
       // reactive navbar color
       if (data.chg_percent >= 0 && data !== null) {
-        $scope.reactiveColor = {'background-color': '#33cd5f'};
+        $scope.reactiveColor = {'background-color': '#33cd5f', 'border-color': 'rgba(255,255,255,.3)'};
       } else if (data.chg_percent < 0 && data !== null) {
-        $scope.reactiveColor = {'background-color': '#ef473a'};
+        $scope.reactiveColor = {'background-color': '#ef473a', 'border-color': 'rgba(0,0,0,.2)'};
       }
     });
   }
