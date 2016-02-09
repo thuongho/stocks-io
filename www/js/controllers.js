@@ -223,4 +223,30 @@ angular.module('stocks.controllers', [])
     y3AxisLabel: 'Volume',
     noData: 'Loading data...'
   };
+}])
+
+.controller('SearchCtrl', ['$scope', '$state', 'ModalService', 'SearchService', function ($scope, $state, ModalService, SearchService) {
+  $scope.closeModal = function() {
+    ModalService.closeModal();
+  };
+
+  // initialize startSearch
+  $scope.search = function() {
+    // clear searchResults
+    $scope.searchResults = '';
+    // passing in searchQuery from the view
+    startSearch($scope.searchQuery);
+  };
+
+  var startSearch = ionic.debounce(function(query) {
+    SearchService.search(query)
+      .then(function (data) {
+        $scope.searchResults = data;
+      });
+  }, 750);
+
+  $scope.goToStock = function(ticker) {
+    ModalService.closeModal();
+    $state.go('app.stock', {stockTicker: ticker});
+  };
 }]);

@@ -2,16 +2,21 @@
   <div class="bar bar-header bar-dark item-input-inset">
     <div class="item-input-wrapper">
       <i class="ion-ios-search-strong placeholder-icon light"></i>
-      <input type="text" placeholder="Seach stocks...">
-      <i class="icon ion-close-round"></i>
+      <input 
+        type="text" 
+        placeholder="Seach stocks..."
+        ng-model="searchQuery"
+        ng-change="search()"
+      >
+      <i class="icon ion-close-round" ng-click="closeModal()"></i>
     </div>
   </div>
 
   <ion-content class="has-header">
     <ion-list>
-      <ion-item class="item-dark">
-        <h3 class="light">Result</h3>
-        <h6 class="light">Info</h6>
+      <ion-item class="item-dark" ng-repeat="result in searchResults" ng-click="goToStock(result.symbol)">
+        <h3 class="light">{{result.symbol}}</h3>
+        <h6 class="light">{{result.exchDisp}}</h6>
       </ion-item> 
     </ion-list>
 

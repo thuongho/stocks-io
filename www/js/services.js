@@ -391,4 +391,33 @@ angular.module('stocks.services', [])
       return deferred.promise;
     }
   };
+}])
+
+.factory('SearchService', ['$q', '$http', function ($q, $http) {
+
+  return {
+    search: function(query) {
+      var deferred = $q.defer(),
+          url = 'http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=' + query + '&region=US&lang=en-US&row=ALL&callback=YAHOO.Finance.SymbolSuggest.ssCallback';
+
+      // routing the query through Yahoo DB
+      YAHOO = window.YAHOO = {
+        Finance: {
+          SymbolSuggest: {}
+        }
+      };
+
+      // DB path function
+      YAHOO.Finance.SymbolSuggest.ssCallback = function(data) {
+        var jsonData = data.ResultSet.Result;
+
+        deferred.resolve(jsonData);
+      };
+
+      $http.jsonp(url)
+        .then(YAHOO.Finance.SymbolSuggest.ssCallback);
+
+      return deferred.promise;
+    }
+  };
 }]);
