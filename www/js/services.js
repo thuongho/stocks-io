@@ -75,6 +75,74 @@ angular.module('stocks.services', [])
   return notesCache;
 }])
 
+.factory('FillMyStocksCacheService', ['CacheFactory', function (CacheFactory) {
+  // add default stocks into the app when first launch
+  // user manages which stock following after
+  var myStocksCache;
+
+  if (!CacheFactory.get('myStocksCache')) {
+    myStocksCache = CacheFactory('myStocksCache', {
+      storageMode: 'localStorage'
+    });
+  } else {
+    myStocksCache = CacheFactory.get('myStocksCache');
+  }
+
+  var fillMyStocksCache = function() {
+    var myStocksArray = [
+      {ticker: "GPRO"},
+      {ticker: "FB"},
+      {ticker: "TSLA"},
+      {ticker: "NFLX"},
+      {ticker: "LNKD"},
+      {ticker: "GOOG"},
+      {ticker: "ATVI"},
+      {ticker: "GLUU"},
+      {ticker: "ZNGA"}
+    ];
+
+    myStocksCache.put('myStocks', myStocksArray);
+  };
+
+  return {
+    fillMyStocksCache: fillMyStocksCache
+  };
+}])
+
+.factory('MyStocksCacheService', ['CacheFactory', function (CacheFactory) {
+  var myStocksCache = CacheFactory.get('myStocksCache');
+
+  return myStocksCache;
+}])
+
+.factory('MyStocksArrayService', ['FillMyStocksCacheService', 'MyStocksCacheService', function (FillMyStocksCacheService, MyStocksCacheService) {
+  // use this service only to manage myStocksArray
+  // populate the myStocks list with default stocks and only when app first launch on device
+  // check to see if a myStocks key exists in the MyStocksCache
+  if (!MyStocksCacheService.info('myStocks')) {
+    FillMyStocksCacheService.fillMyStocksCache();
+  }
+  var myStocks = MyStocksCacheService.get('myStocks');
+  
+  return myStocks;
+}])
+
+.factory('FollowStockService', [function () {
+  
+
+  return {
+    follow: function(ticker) {
+
+    },
+    unfollow: function(ticker) {
+
+    },
+    checkFollowing: function(ticker) {
+
+    }
+  };
+}])
+
 .factory('StockDataService', ['$q', '$http', 'EncodeURIService', 'StockDetailsCacheService', function ($q, $http, EncodeURIService, StockDetailsCacheService) {
   var getDetailsData = function(ticker) {
     var deferred = $q.defer(),

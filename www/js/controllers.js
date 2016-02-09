@@ -41,18 +41,10 @@ angular.module('stocks.controllers', [])
   };
 })
 
-.controller('MyStocksCtrl', ['$scope', function ($scope) {
-  $scope.myStocksArray = [
-    {ticker: "GPRO"},
-    {ticker: "FB"},
-    {ticker: "TSLA"},
-    {ticker: "NFLX"},
-    {ticker: "LNKD"},
-    {ticker: "GOOG"},
-    {ticker: "ATVI"},
-    {ticker: "GLUU"},
-    {ticker: "ZNGA"}
-  ];
+.controller('MyStocksCtrl', ['$scope', 'MyStocksArrayService', function ($scope, MyStocksArrayService) {
+
+  // MyStocksArrayService only returns the array of the default stocks
+  $scope.myStocksArray = MyStocksArrayService;
 }])
 
 .controller('StockCtrl', ['$scope', '$stateParams', '$window', '$ionicPopup', 'StockDataService', 'DateService', 'ChartDataService', 'NotesService', 'NewsService', function ($scope, $stateParams, $window, $ionicPopup, StockDataService, DateService, ChartDataService, NotesService, NewsService) {
