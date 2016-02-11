@@ -4,10 +4,29 @@ angular.module('stocks.controllers', [])
   $scope.modalService = ModalService;
 }])
 
-.controller('MyStocksCtrl', ['$scope', 'MyStocksArrayService', function ($scope, MyStocksArrayService) {
+.controller('MyStocksCtrl', ['$scope', 'MyStocksArrayService', 'StockDataService', 'StockPriceCacheService', function ($scope, MyStocksArrayService, StockDataService, StockPriceCacheService) {
 
-  // MyStocksArrayService only returns the array of the default stocks
-  $scope.myStocksArray = MyStocksArrayService;
+  $scope.$on("$ionicView.afterEnter", function() {
+    $scope.getMyStocksData();
+  });
+
+  $scope.getMyStocksData = function() {
+    MyStocksArrayService.forEach(function(stock) {
+      var promise = StockDataService.getPriceData(stock.ticker);
+
+      $scope.myStocksData = [];
+
+      promise.then(function(data) {
+        $scope.myStocksData.push(StockPriceCacheService.get(data.symbol));
+      });
+    });
+    $scope.$broadcast('scroll.refreshComplete');
+  };
+
+  $scope.unfollowStock = function(ticker) {
+    FollowStockService.unfollow(ticker);
+    $scope.getMyStocksData();
+  };
 }])
 
 .controller('StockCtrl', ['$scope', '$stateParams', '$window', '$ionicPopup', 'StockDataService', 'DateService', 'ChartDataService', 'NotesService', 'NewsService', 'FollowStockService', function ($scope, $stateParams, $window, $ionicPopup, StockDataService, DateService, ChartDataService, NotesService, NewsService, FollowStockService) {

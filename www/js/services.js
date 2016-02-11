@@ -106,6 +106,23 @@ angular.module('stocks.services', [])
   return stockDetailsCache;
 }])
 
+.factory('StockPriceCacheService', ['CacheFactory', function (CacheFactory) {
+  
+  var stockDetailsCache;
+
+  if (!CacheFactory.get('stockPriceCache')) {
+    stockPriceCache = CacheFactory('stockPriceCache', {
+      maxAge: 5 * 1000,
+      deleteOnExpire: 'aggressive',
+      storageMode: 'localStorage'
+    });
+  } else {
+    stockPriceCache = CacheFactory.get('stockPriceCache');
+  }
+
+  return stockPriceCache;
+}])
+
 .factory('NotesCacheService', ['CacheFactory', function (CacheFactory) {
   var notesCache;
 
@@ -205,7 +222,7 @@ angular.module('stocks.services', [])
   };
 }])
 
-.factory('StockDataService', ['$q', '$http', 'EncodeURIService', 'StockDetailsCacheService', function ($q, $http, EncodeURIService, StockDetailsCacheService) {
+.factory('StockDataService', ['$q', '$http', 'EncodeURIService', 'StockDetailsCacheService', 'StockPriceCacheService', function ($q, $http, EncodeURIService, StockDetailsCacheService, StockPriceCacheService) {
   var getDetailsData = function(ticker) {
     var deferred = $q.defer(),
 
@@ -236,6 +253,7 @@ angular.module('stocks.services', [])
   var getPriceData = function(ticker) {
     // define a variable called deferred and set it to q method defer
     var deferred = $q.defer(), 
+        cacheKey = ticker,
         // url equal to api query string
         url = "http://finance.yahoo.com/webservice/v1/symbols/" +  ticker + "/quote?format=json&view=detail";
 
@@ -246,6 +264,7 @@ angular.module('stocks.services', [])
         var jsonData = json.list.resources[0].resource.fields; 
         // handle the resolution of the deferred promise, q method resolve
         deferred.resolve(jsonData);
+        StockPriceCacheService.put(cacheKey, jsonData);
       })
       .error(function (error) {
         console.log("Price data error: " + error);
