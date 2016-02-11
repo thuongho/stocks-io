@@ -1,5 +1,6 @@
 angular.module('stocks', [
   'ionic',
+  'firebase',
   'angular-cache',
   'nvd3',
   'nvChart',

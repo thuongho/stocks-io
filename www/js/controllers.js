@@ -1,7 +1,10 @@
 angular.module('stocks.controllers', [])
 
-.controller('AppCtrl', ['$scope', 'ModalService', function ($scope, ModalService) {
+.controller('AppCtrl', ['$scope', 'ModalService', 'UserService', function ($scope, ModalService, UserService) {
   $scope.modalService = ModalService;
+  $scope.logout = function() {
+    UserService.logout();
+  };
 }])
 
 .controller('MyStocksCtrl', ['$scope', 'MyStocksArrayService', 'StockDataService', 'StockPriceCacheService', function ($scope, MyStocksArrayService, StockDataService, StockPriceCacheService) {
@@ -267,5 +270,22 @@ angular.module('stocks.controllers', [])
   $scope.goToStock = function(ticker) {
     ModalService.closeModal();
     $state.go('app.stock', {stockTicker: ticker});
+  };
+}])
+
+.controller('LoginSignupCtrl', ['$scope', 'ModalService', 'UserService', function ($scope, ModalService, UserService) {
+
+  $scope.user = {email: '', password: ''};
+
+  $scope.closeModal = function() {
+    ModalService.closeModal();
+  };
+
+  $scope.signup = function(user) {
+    UserService.signup(user);
+  };
+
+  $scope.login = function(user) {
+    UserService.login(user);
   };
 }]);

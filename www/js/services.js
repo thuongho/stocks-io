@@ -1,5 +1,7 @@
 angular.module('stocks.services', [])
 
+.constant('FIREBASE_URL', 'https://shining-inferno-2964.firebaseio.com/stocks/')
+
 .factory('EncodeURIService', function () {
   // remove all %20 and add them back
   return {
@@ -25,15 +27,19 @@ angular.module('stocks.services', [])
       });
     } else if (id == 2) {
       $ionicModal.fromTemplateUrl('templates/login.html', {
-        scope: $scope
+        scope: null,
+        controller: 'LoginSearchCtrl'
       }).then(function(modal) {
-        $scope.modal = modal;
+        _this.modal = modal;
+        _this.modal.show();
       });
     } else if (id == 3) {
-      $ionicModal.fromTemplateUrl('templates/login.html', {
-        scope: $scope
+      $ionicModal.fromTemplateUrl('templates/signup.html', {
+        scope: null,
+        controller: 'LoginSearchCtrl'
       }).then(function(modal) {
-        $scope.modal = modal;
+        _this.modal = modal;
+        _this.modal.show();
       });
     }
   };
@@ -69,6 +75,68 @@ angular.module('stocks.services', [])
   return {
     currentDate: currentDate,
     oneYearAgoDate: oneYearAgoDate
+  };
+}])
+
+.factory('FirebaseRef', ['$firebase', 'FIREBASE_URL', function ($firebase, FIREBASE_URL) {
+  
+  var firebaseRef = new Firebase(FIREBASE_URL);
+  return firebaseRef;
+}])
+
+.factory('UserService', ['$rootScope', 'FirebaseRef', 'ModalService', function ($rootScope, FirebaseRef, ModalService) {
+  
+  var login = function(user) {
+    FirebaseRef.authWithPassword({
+      email    : user.email,
+      password : user.password
+    }, function(error, authData) {
+      if (error) {
+        console.log("Login Failed!", error);
+      } else {
+        $rootScope.currentUser = user;
+        ModalService.closeModal();
+        console.log("Authenticated successfully with payload:", authData);
+      }
+    });
+  };
+
+  var signup = function(user) {
+    FirebaseRef.createUser({
+      email    : user.email,
+      password : user.password
+    }, function(error, userData) {
+      if (error) {
+        console.log("Error creating user:", JSON.stringify(error));
+      } else {
+        // log user in after they successfully create an account
+        login(user);
+        console.log("Successfully created user account with uid:", userData.uid);
+      }
+    });
+  };
+
+  var logout = function(user) {
+    FirebaseRef.unauth();
+    $rootScope.currentUser = '';
+  };
+
+  var getUser = function() {
+    // this provides a signed in user's info
+    // return null if no users signed in
+    // this method will run when the service is initialized by a controller injecting it as a dependency
+    return FirebaseRef.getAuth();
+  };
+
+  if (getUser()) {
+    // if true, set currentUser to the user from Firebase getAuth 
+    $rootScope.currentUser = getUser;
+  }
+
+  return {
+    login: login,
+    signup: signup,
+    logout: logout
   };
 }])
 
