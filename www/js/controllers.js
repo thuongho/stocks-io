@@ -7,7 +7,7 @@ angular.module('stocks.controllers', [])
   };
 }])
 
-.controller('MyStocksCtrl', ['$scope', 'MyStocksArrayService', 'StockDataService', 'StockPriceCacheService', function ($scope, MyStocksArrayService, StockDataService, StockPriceCacheService) {
+.controller('MyStocksCtrl', ['$scope', 'MyStocksArrayService', 'StockDataService', 'StockPriceCacheService', 'FollowStockService', function ($scope, MyStocksArrayService, StockDataService, StockPriceCacheService, FollowStockService) {
 
   $scope.$on("$ionicView.afterEnter", function() {
     $scope.getMyStocksData();
